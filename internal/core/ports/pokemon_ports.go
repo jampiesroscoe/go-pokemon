@@ -9,7 +9,9 @@ type IPokemonService interface {
 }
 
 type IPokemonRepository interface {
-	IChooseYou(name string) []byte
+	StorePokemon(pokemon []byte, name string) error
+	GetPokemon(name string) ([]byte, error)
+	FindInWild(name string) ([]byte, error)
 }
 
 type IPokemonHandlers interface {

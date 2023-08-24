@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	pokemonRepository := repositories.NewPokemonRepository()
+	pokemonRepository := repositories.NewPokemonRepository("mongodb+srv://pokemon:charizard@cluster0.014fu.mongodb.net/?retryWrites=true&w=majority")
 	//services
 	pokemonService := services.NewPokemonService(pokemonRepository)
 	//handlers
