@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"go-pokemon/internal/core/domain"
 	"go-pokemon/internal/core/ports"
 )
 
@@ -18,7 +19,7 @@ func NewPokemonService(repository ports.IPokemonRepository) *PokemonService {
 	}
 }
 
-func (s *PokemonService) IChooseYou(name string) []byte {
+func (s *PokemonService) IChooseYou(name string) domain.Pokemon {
 	response, err := s.pokemonRepository.GetPokemon(name)
 	if err != nil {
 		response, err := s.pokemonRepository.FindInWild(name)

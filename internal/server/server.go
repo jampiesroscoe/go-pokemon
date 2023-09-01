@@ -23,7 +23,7 @@ func NewServer(pHandlers ports.IPokemonHandlers) *Server {
 func (s *Server) Initialize() {
 	app := fiber.New()
 	app.Get(
-		"pokemon/i-choose-you/:name",
+		"pokemon/iChooseYou/:name",
 		s.pokemonHandlers.IChooseYou,
 	)
 

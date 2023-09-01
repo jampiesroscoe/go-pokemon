@@ -20,5 +20,5 @@ func NewPokemonHandlers(pokemonService ports.IPokemonService) *PokemonHandlers {
 func (h *PokemonHandlers) IChooseYou(c *fiber.Ctx) error {
 	var name = c.Params("name")
 	response := h.pokemonService.IChooseYou(name)
-	return c.Send(response)
+	return c.JSON(response)
 }

@@ -2,7 +2,9 @@ package repositories
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"go-pokemon/internal/core/domain"
 	"go-pokemon/internal/core/ports"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -48,20 +50,20 @@ func NewPokemonRepository(conn string) *PokemonRepository {
 	}
 }
 
-func (r *PokemonRepository) GetPokemon(name string) ([]byte, error) {
+func (r *PokemonRepository) GetPokemon(name string) (domain.Pokemon, error) {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), MongoClientTimeout*time.Second)
 	defer cancelFunc()
 
-	var result []byte
+	var result domain.Pokemon
 	err := r.collection.FindOne(ctx, bson.M{"id": name}).Decode(&result)
 	if err == mongo.ErrNoDocuments {
-		fmt.Printf("No pokemon found in your collection with the name %s\n", name)
-		fmt.Printf("Lets catch %s in the wild!", name)
+		fmt.Printf("No pokemon found in your mongodb collection with the name %s\n", name)
+		fmt.Printf("Finding %s from pokemon api", name)
 	}
 	return result, err
 }
 
-func (r *PokemonRepository) StorePokemon(pokemon []byte, name string) error {
+func (r *PokemonRepository) StorePokemon(pokemon domain.Pokemon, name string) error {
 	ctx, cancelFunc := context.WithTimeout(context.Background(), MongoClientTimeout*time.Second)
 	defer cancelFunc()
 	_, err := r.collection.InsertOne(ctx, bson.M{"id": name, "pokemonData": pokemon})
@@ -71,14 +73,23 @@ func (r *PokemonRepository) StorePokemon(pokemon []byte, name string) error {
 	return nil
 }
 
-func (r *PokemonRepository) FindInWild(name string) ([]byte, error) {
-	response, err := http.Get("http://pokeapi.co/api/v2/pokemon/" + name)
-	if err != nil {
-		fmt.Println(err)
+func (r *PokemonRepository) FindInWild(name string) (domain.Pokemon, error) {
+	var pokemon domain.Pokemon
+
+	response, responseErr := http.Get("http://pokeapi.co/api/v2/pokemon/" + name)
+	if responseErr != nil {
+		fmt.Println(responseErr)
 	}
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		fmt.Println(err)
+
+	body, parseErr := io.ReadAll(response.Body)
+	if parseErr != nil {
+		fmt.Println(parseErr)
 	}
-	return body, err
+
+	jsonErr := json.Unmarshal(body, &pokemon)
+	if jsonErr != nil {
+		fmt.Println(jsonErr)
+	}
+
+	return pokemon, jsonErr
 }
